@@ -1,4 +1,4 @@
-package com.yifei.grpc.greeting.client;
+package com.yifei.grpc.calculator.client;
 
 import com.yifei.calculator.*;
 import io.grpc.ManagedChannel;

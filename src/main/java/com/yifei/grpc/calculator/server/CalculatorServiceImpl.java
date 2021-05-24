@@ -1,4 +1,4 @@
-package com.yifei.grpc.greeting.server;
+package com.yifei.grpc.calculator.server;
 
 import com.yifei.calculator.*;
 import io.grpc.stub.StreamObserver;
