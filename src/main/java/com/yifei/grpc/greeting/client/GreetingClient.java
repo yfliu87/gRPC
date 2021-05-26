@@ -1,8 +1,7 @@
 package com.yifei.grpc.greeting.client;
 
 import com.yifei.greet.*;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
+import io.grpc.*;
 import io.grpc.stub.StreamObserver;
 
 import java.util.concurrent.CountDownLatch;
@@ -25,6 +24,8 @@ public class GreetingClient {
         serverStreaming(channel);
 
         clientStreaming(channel);
+
+        withDeadline(channel);
 
         System.out.println("Shutting down channel");
         channel.shutdown();
@@ -109,5 +110,24 @@ public class GreetingClient {
                 LongGreetRequest.newBuilder()
                         .setGreeting(Greeting.newBuilder().setFirstName(name).build())
                         .build());
+    }
+
+    private void withDeadline(ManagedChannel channel) {
+        System.out.println("\nWith Deadline");
+
+        GreetServiceGrpc.GreetServiceBlockingStub syncClient = GreetServiceGrpc.newBlockingStub(channel);
+
+        try {
+            GreetWithDeadlineResponse response = syncClient.withDeadline(Deadline.after(50, TimeUnit.MILLISECONDS))
+                    .greetWithDeadline(GreetWithDeadlineRequest.newBuilder().setGreeting(Greeting.newBuilder().setFirstName("Yifei").build()).build());
+
+            System.out.println("With deadline response: " + response.getResult());
+        } catch (StatusRuntimeException e) {
+            if (e.getStatus().getCode() == Status.Code.DEADLINE_EXCEEDED) {
+                System.out.println("Deadline exceeded");
+            } else {
+                e.printStackTrace();
+            }
+        }
     }
 }
