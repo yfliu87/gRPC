@@ -2,21 +2,25 @@ package com.yifei.grpc.greeting.client;
 
 import com.yifei.greet.*;
 import io.grpc.*;
+import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
 
+import javax.net.ssl.SSLException;
+import java.io.File;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class GreetingClient {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SSLException {
         System.out.println("starting gRPC client...");
         new GreetingClient().run();
     }
 
-    public void run() {
-        ManagedChannel channel = ManagedChannelBuilder
+    public void run() throws SSLException {
+        ManagedChannel channel = NettyChannelBuilder
                 .forAddress("localhost", 50051)
-                .usePlaintext()
+                .sslContext(GrpcSslContexts.forClient().trustManager(new File("ssl/ca.crt")).build())
                 .build();
 
         unary(channel);

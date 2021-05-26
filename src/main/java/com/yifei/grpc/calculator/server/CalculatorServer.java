@@ -3,6 +3,7 @@ package com.yifei.grpc.calculator.server;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
+import java.io.File;
 import java.io.IOException;
 
 public class CalculatorServer {
@@ -11,7 +12,10 @@ public class CalculatorServer {
     }
 
     public void start() throws IOException, InterruptedException {
-        Server server = ServerBuilder.forPort(50051).addService(new CalculatorServiceImpl()).build();
+        Server server = ServerBuilder.forPort(50051)
+                .addService(new CalculatorServiceImpl())
+                .useTransportSecurity(new File("ssl/server.crt"), new File("ssl/server.pem"))
+                .build();
 
         server.start();
         System.out.println("Calculator server started");
