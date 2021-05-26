@@ -5,6 +5,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -26,8 +27,47 @@ public class CalculatorClient {
 
         this.average(channel);
 
+        this.max(channel);
+
         System.out.println("\nShutting down channel");
         channel.shutdown();
+    }
+
+    private void max(ManagedChannel channel) {
+        System.out.println("\nMax Calculation");
+
+        CalculatorServiceGrpc.CalculatorServiceStub asyncClient = CalculatorServiceGrpc.newStub(channel);
+
+        StreamObserver<MaxRequest> streamObserver = asyncClient.max(new StreamObserver<MaxResponse>() {
+            @Override
+            public void onNext(MaxResponse value) {
+                System.out.println("Max value from server: " + value.getResult());
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                System.out.println("Received error from server");
+            }
+
+            @Override
+            public void onCompleted() {
+                System.out.println("Server sent complete message");
+            }
+        });
+
+        Arrays.asList(1,5,3,6,2,20).stream().forEach(value -> {
+            System.out.println("Sending " + value + " to server");
+
+            streamObserver.onNext(MaxRequest.newBuilder().setNumber(value).build());
+
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        streamObserver.onCompleted();
     }
 
     private void average(ManagedChannel channel) {
@@ -47,6 +87,7 @@ public class CalculatorClient {
             @Override
             public void onError(Throwable t) {
                 System.out.println("Server error");
+                latch.countDown();
             }
 
             @Override
