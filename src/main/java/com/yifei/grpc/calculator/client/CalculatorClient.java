@@ -29,8 +29,25 @@ public class CalculatorClient {
 
         this.max(channel);
 
+        this.squareRoot(channel);
+
         System.out.println("\nShutting down channel");
         channel.shutdown();
+    }
+
+    private void squareRoot(ManagedChannel channel) {
+        System.out.println("\nSquare Root");
+
+        CalculatorServiceGrpc.CalculatorServiceBlockingStub syncClient =
+                CalculatorServiceGrpc.newBlockingStub(channel);
+
+        try {
+            SquareRootResponse response = syncClient.squareRoot(SquareRootRequest.newBuilder().setNumber(-100).build());
+            System.out.println("Square root response: " + response.getResult());
+        } catch (RuntimeException e) {
+            System.out.println("Server side exception");
+            e.printStackTrace();
+        }
     }
 
     private void max(ManagedChannel channel) {

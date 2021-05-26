@@ -1,6 +1,7 @@
 package com.yifei.grpc.calculator.server;
 
 import com.yifei.calculator.*;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 
 public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServiceImplBase {
@@ -91,5 +92,17 @@ public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServi
         };
 
         return maxRequestStreamObserver;
+    }
+
+    @Override
+    public void squareRoot(SquareRootRequest request, StreamObserver<SquareRootResponse> responseObserver) {
+        int number = request.getNumber();
+
+        if (number >= 0) {
+            responseObserver.onNext(SquareRootResponse.newBuilder().setResult(Math.sqrt(number)).build());
+            responseObserver.onCompleted();
+        } else {
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Input is negative").asRuntimeException());
+        }
     }
 }
