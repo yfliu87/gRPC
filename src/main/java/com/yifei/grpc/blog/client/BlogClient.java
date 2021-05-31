@@ -2,21 +2,21 @@ package com.yifei.grpc.blog.client;
 
 import com.yifei.blog.*;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
 
+import javax.net.ssl.SSLException;
 import java.io.File;
 
 public class BlogClient {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SSLException {
         System.out.println("Starting log client ...");
 
         new BlogClient().run();
     }
 
-    public void run() {
+    public void run() throws SSLException {
         ManagedChannel channel = NettyChannelBuilder
                 .forAddress("localhost", 50051)
                 .sslContext(GrpcSslContexts.forClient().trustManager(new File("ssl/ca.crt")).build())
@@ -48,6 +48,10 @@ public class BlogClient {
         UpdateBlogRequest updateBlogRequest = UpdateBlogRequest.newBuilder().setBlog(updateBlog).build();
         UpdateBlogResponse updateBlogResponse = syncClient.updateBlog(updateBlogRequest);
         System.out.println("Update blog response: " + updateBlogResponse.toString());
+
+        DeleteBlogRequest deleteBlogRequest = DeleteBlogRequest.newBuilder().setBlogId(createBlogResponse.getBlog().getId()).build();
+        DeleteBlogResponse deleteBlogResponse = syncClient.deleteBlog(deleteBlogRequest);
+        System.out.println("Delete blog response: " + deleteBlogResponse.toString());
 
     }
 
