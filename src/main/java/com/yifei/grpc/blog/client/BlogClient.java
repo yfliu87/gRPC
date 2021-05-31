@@ -53,6 +53,15 @@ public class BlogClient {
         DeleteBlogResponse deleteBlogResponse = syncClient.deleteBlog(deleteBlogRequest);
         System.out.println("Delete blog response: " + deleteBlogResponse.toString());
 
+        BatchListBlogRequest batchListBlogRequest = BatchListBlogRequest.newBuilder().setCount(3).build();
+        BatchListBlogResponse batchListBlogResponse = syncClient.batchListBlog(batchListBlogRequest);
+        batchListBlogResponse.getBlogList().forEach(b -> System.out.println(b.toString()));
+
+        StreamListBlogRequest streamListBlogRequest = StreamListBlogRequest.newBuilder().build();
+        syncClient.streamListBlog(streamListBlogRequest).forEachRemaining(
+                streamListBlogResponse -> System.out.println(streamListBlogResponse.toString())
+        );
+
     }
 
 }

@@ -44,9 +44,27 @@ message DeleteBlogResponse {
   string blog_id = 1;
 }
 
+message BatchListBlogRequest {
+  int32 count = 1;
+}
+
+message BatchListBlogResponse {
+  repeated Blog blog = 1;
+}
+
+message StreamListBlogRequest {
+
+}
+
+message StreamListBlogResponse {
+  Blog blog = 1;
+}
+
 service BlogService {
   rpc CreateBlog(CreateBlogRequest) returns (CreateBlogResponse) {};
   rpc ReadBlog(ReadBlogRequest) returns (ReadBlogResponse) {};
   rpc UpdateBlog(UpdateBlogRequest) returns (UpdateBlogResponse) {};
   rpc DeleteBlog(DeleteBlogRequest) returns (DeleteBlogResponse) {};
+  rpc BatchListBlog(BatchListBlogRequest) returns (BatchListBlogResponse) {};
+  rpc StreamListBlog(StreamListBlogRequest) returns (stream StreamListBlogResponse) {};
 }

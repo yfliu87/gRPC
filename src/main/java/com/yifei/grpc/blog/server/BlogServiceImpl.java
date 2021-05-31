@@ -11,6 +11,9 @@ import io.grpc.stub.StreamObserver;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import static com.mongodb.client.model.Filters.eq;
 
 public class BlogServiceImpl extends BlogServiceGrpc.BlogServiceImplBase {
@@ -113,5 +116,29 @@ public class BlogServiceImpl extends BlogServiceGrpc.BlogServiceImplBase {
             responseObserver.onNext(DeleteBlogResponse.newBuilder().setBlogId(blogId).build());
             responseObserver.onCompleted();
         }
+    }
+
+    @Override
+    public void batchListBlog(BatchListBlogRequest request, StreamObserver<BatchListBlogResponse> responseObserver) {
+        System.out.println("Received batch list blog request");
+
+        List<Blog> blogs = new LinkedList<>();
+
+        this.collection.find().limit(request.getCount()).iterator().forEachRemaining(
+                doc -> blogs.add(documentToBlog(doc))
+        );
+
+        responseObserver.onNext(BatchListBlogResponse.newBuilder().addAllBlog(blogs).build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void streamListBlog(StreamListBlogRequest request, StreamObserver<StreamListBlogResponse> responseObserver) {
+        System.out.println("Received stream list blog request");
+
+        this.collection.find().iterator().forEachRemaining(
+                doc -> responseObserver.onNext(StreamListBlogResponse.newBuilder().setBlog(documentToBlog(doc)).build())
+        );
+        responseObserver.onCompleted();
     }
 }
