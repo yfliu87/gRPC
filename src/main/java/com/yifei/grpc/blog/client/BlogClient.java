@@ -3,6 +3,10 @@ package com.yifei.grpc.blog.client;
 import com.yifei.blog.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
+
+import java.io.File;
 
 public class BlogClient {
 
@@ -13,9 +17,9 @@ public class BlogClient {
     }
 
     public void run() {
-        ManagedChannel channel = ManagedChannelBuilder
+        ManagedChannel channel = NettyChannelBuilder
                 .forAddress("localhost", 50051)
-                .usePlaintext()
+                .sslContext(GrpcSslContexts.forClient().trustManager(new File("ssl/ca.crt")).build())
                 .build();
 
         BlogServiceGrpc.BlogServiceBlockingStub syncClient = BlogServiceGrpc.newBlockingStub(channel);
@@ -33,6 +37,18 @@ public class BlogClient {
         ReadBlogRequest readBlogRequest = ReadBlogRequest.newBuilder().setBlogId(createBlogResponse.getBlog().getId()).build();
         ReadBlogResponse readBlogResponse = syncClient.readBlog(readBlogRequest);
         System.out.println("Read blog response: " + readBlogResponse.toString());
+
+        Blog updateBlog = Blog.newBuilder()
+                .setId(createBlogResponse.getBlog().getId())
+                .setAuthorId("Enjie")
+                .setTitle("kids blog")
+                .setContent("my kids journal")
+                .build();
+
+        UpdateBlogRequest updateBlogRequest = UpdateBlogRequest.newBuilder().setBlog(updateBlog).build();
+        UpdateBlogResponse updateBlogResponse = syncClient.updateBlog(updateBlogRequest);
+        System.out.println("Update blog response: " + updateBlogResponse.toString());
+
     }
 
 }
