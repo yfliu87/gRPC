@@ -1,6 +1,7 @@
 package com.yifei.grpc.blog.client;
 
 import com.yifei.blog.*;
+import com.yifei.grpc.interceptor.client.AppClientInterceptor;
 import io.grpc.ManagedChannel;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
@@ -22,7 +23,7 @@ public class BlogClient {
                 .sslContext(GrpcSslContexts.forClient().trustManager(new File("ssl/ca.crt")).build())
                 .build();
 
-        BlogServiceGrpc.BlogServiceBlockingStub syncClient = BlogServiceGrpc.newBlockingStub(channel);
+        BlogServiceGrpc.BlogServiceBlockingStub syncClient = BlogServiceGrpc.newBlockingStub(channel).withInterceptors(new AppClientInterceptor());
 
         Blog blog = Blog.newBuilder()
                 .setAuthorId("Yifei")

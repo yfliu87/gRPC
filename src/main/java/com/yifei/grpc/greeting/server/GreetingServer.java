@@ -1,7 +1,9 @@
 package com.yifei.grpc.greeting.server;
 
+import com.yifei.grpc.interceptor.server.AppServerInterceptor;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.grpc.ServerInterceptors;
 import io.grpc.protobuf.services.ProtoReflectionService;
 
 import java.io.File;
@@ -12,7 +14,7 @@ public class GreetingServer {
         System.out.println("Hello gRPC");
 
         Server server = ServerBuilder.forPort(50051)
-                .addService(new GreetingServiceImpl())
+                .addService(ServerInterceptors.intercept(new GreetingServiceImpl(), new AppServerInterceptor()))
                 .addService(ProtoReflectionService.newInstance())
                 .useTransportSecurity(new File("ssl/server.crt"), new File("ssl/server.pem"))
                 .build();

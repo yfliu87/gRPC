@@ -1,7 +1,9 @@
 package com.yifei.grpc.blog.server;
 
+import com.yifei.grpc.interceptor.server.AppServerInterceptor;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.grpc.ServerInterceptors;
 import io.grpc.protobuf.services.ProtoReflectionService;
 
 import java.io.File;
@@ -14,7 +16,7 @@ public class BlogServer {
 
     public void start() throws IOException, InterruptedException {
         Server server = ServerBuilder.forPort(50051)
-                .addService(new BlogServiceImpl())
+                .addService(ServerInterceptors.intercept(new BlogServiceImpl(), new AppServerInterceptor()))
                 .addService(ProtoReflectionService.newInstance())
                 .useTransportSecurity(new File("ssl/server.crt"), new File("ssl/server.pem"))
                 .build();

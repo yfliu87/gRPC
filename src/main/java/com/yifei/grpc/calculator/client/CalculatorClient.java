@@ -1,6 +1,7 @@
 package com.yifei.grpc.calculator.client;
 
 import com.yifei.calculator.*;
+import com.yifei.grpc.interceptor.client.AppClientInterceptor;
 import io.grpc.ManagedChannel;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
@@ -42,7 +43,7 @@ public class CalculatorClient {
         System.out.println("\nSquare Root");
 
         CalculatorServiceGrpc.CalculatorServiceBlockingStub syncClient =
-                CalculatorServiceGrpc.newBlockingStub(channel);
+                CalculatorServiceGrpc.newBlockingStub(channel).withInterceptors(new AppClientInterceptor());
 
         try {
             SquareRootResponse response = syncClient.squareRoot(SquareRootRequest.newBuilder().setNumber(-100).build());
@@ -56,7 +57,7 @@ public class CalculatorClient {
     private void max(ManagedChannel channel) {
         System.out.println("\nMax Calculation");
 
-        CalculatorServiceGrpc.CalculatorServiceStub asyncClient = CalculatorServiceGrpc.newStub(channel);
+        CalculatorServiceGrpc.CalculatorServiceStub asyncClient = CalculatorServiceGrpc.newStub(channel).withInterceptors(new AppClientInterceptor());
 
         StreamObserver<MaxRequest> streamObserver = asyncClient.max(new StreamObserver<MaxResponse>() {
             @Override
@@ -93,7 +94,7 @@ public class CalculatorClient {
     private void average(ManagedChannel channel) {
         System.out.println("\nAverage Calculation");
 
-        CalculatorServiceGrpc.CalculatorServiceStub asyncClient = CalculatorServiceGrpc.newStub(channel);
+        CalculatorServiceGrpc.CalculatorServiceStub asyncClient = CalculatorServiceGrpc.newStub(channel).withInterceptors(new AppClientInterceptor());
 
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -141,7 +142,7 @@ public class CalculatorClient {
         System.out.println("\nSum Calculation");
 
         CalculatorServiceGrpc.CalculatorServiceBlockingStub syncClient =
-                CalculatorServiceGrpc.newBlockingStub(channel);
+                CalculatorServiceGrpc.newBlockingStub(channel).withInterceptors(new AppClientInterceptor());
 
         CalculateRequest request = CalculateRequest.newBuilder()
                 .setLeftOperator(3)
