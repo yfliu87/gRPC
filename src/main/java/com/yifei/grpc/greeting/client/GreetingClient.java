@@ -49,7 +49,7 @@ public class GreetingClient {
                 .setGreeting(greeting)
                 .build();
 
-        GreetResponse response = syncClient.greet(request);
+        GreetResponse response = syncClient.withCompression("gzip").greet(request);
         System.out.println("Unary Greeting response: " + response.getResult());
     }
 
@@ -62,7 +62,7 @@ public class GreetingClient {
                 .setGreeting(Greeting.newBuilder().setFirstName("Yifei").setLastName("Liu").build())
                 .build();
 
-        syncClient.greetManyTimes(request).forEachRemaining(response -> {
+        syncClient.withCompression("gzip").greetManyTimes(request).forEachRemaining(response -> {
             System.out.println(response.getResult());
         });
     }
@@ -75,7 +75,7 @@ public class GreetingClient {
         GreetServiceGrpc.GreetServiceStub asyncClient = GreetServiceGrpc.newStub(channel).withInterceptors(new AppClientInterceptor());
 
         StreamObserver<LongGreetRequest> requestStreamObserver =
-                asyncClient.longGreet(new StreamObserver<LongGreetResponse>() {
+                asyncClient.withCompression("gzip").longGreet(new StreamObserver<LongGreetResponse>() {
                     @Override
                     public void onNext(LongGreetResponse value) {
                         System.out.println("Response from server: ");
@@ -125,7 +125,7 @@ public class GreetingClient {
                 .withInterceptors(new AppClientInterceptor());
 
         try {
-            GreetWithDeadlineResponse response = syncClient.greetWithDeadline(
+            GreetWithDeadlineResponse response = syncClient.withCompression("gzip").greetWithDeadline(
                     GreetWithDeadlineRequest.newBuilder().setGreeting(
                             Greeting.newBuilder().setFirstName("Yifei").build()
                     ).build());

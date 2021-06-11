@@ -32,11 +32,11 @@ public class BlogClient {
                 .build();
 
         CreateBlogRequest createBlogRequest = CreateBlogRequest.newBuilder().setBlog(blog).build();
-        CreateBlogResponse createBlogResponse = syncClient.createBlog(createBlogRequest);
+        CreateBlogResponse createBlogResponse = syncClient.withCompression("gzip").createBlog(createBlogRequest);
         System.out.println("Create blog response: " + createBlogResponse.toString());
 
         ReadBlogRequest readBlogRequest = ReadBlogRequest.newBuilder().setBlogId(createBlogResponse.getBlog().getId()).build();
-        ReadBlogResponse readBlogResponse = syncClient.readBlog(readBlogRequest);
+        ReadBlogResponse readBlogResponse = syncClient.withCompression("gzip").readBlog(readBlogRequest);
         System.out.println("Read blog response: " + readBlogResponse.toString());
 
         Blog updateBlog = Blog.newBuilder()
@@ -47,19 +47,19 @@ public class BlogClient {
                 .build();
 
         UpdateBlogRequest updateBlogRequest = UpdateBlogRequest.newBuilder().setBlog(updateBlog).build();
-        UpdateBlogResponse updateBlogResponse = syncClient.updateBlog(updateBlogRequest);
+        UpdateBlogResponse updateBlogResponse = syncClient.withCompression("gzip").updateBlog(updateBlogRequest);
         System.out.println("Update blog response: " + updateBlogResponse.toString());
 
         DeleteBlogRequest deleteBlogRequest = DeleteBlogRequest.newBuilder().setBlogId(createBlogResponse.getBlog().getId()).build();
-        DeleteBlogResponse deleteBlogResponse = syncClient.deleteBlog(deleteBlogRequest);
+        DeleteBlogResponse deleteBlogResponse = syncClient.withCompression("gzip").deleteBlog(deleteBlogRequest);
         System.out.println("Delete blog response: " + deleteBlogResponse.toString());
 
         BatchListBlogRequest batchListBlogRequest = BatchListBlogRequest.newBuilder().setCount(3).build();
-        BatchListBlogResponse batchListBlogResponse = syncClient.batchListBlog(batchListBlogRequest);
+        BatchListBlogResponse batchListBlogResponse = syncClient.withCompression("gzip").batchListBlog(batchListBlogRequest);
         batchListBlogResponse.getBlogList().forEach(b -> System.out.println(b.toString()));
 
         StreamListBlogRequest streamListBlogRequest = StreamListBlogRequest.newBuilder().build();
-        syncClient.streamListBlog(streamListBlogRequest).forEachRemaining(
+        syncClient.withCompression("gzip").streamListBlog(streamListBlogRequest).forEachRemaining(
                 streamListBlogResponse -> System.out.println(streamListBlogResponse.toString())
         );
 
