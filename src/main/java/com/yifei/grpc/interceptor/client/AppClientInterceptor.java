@@ -4,6 +4,8 @@ import io.grpc.*;
 
 import java.util.logging.Logger;
 
+import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
+
 public class AppClientInterceptor implements ClientInterceptor {
 
     private static final Logger logger = Logger.getLogger(AppClientInterceptor.class.getName());
@@ -12,8 +14,7 @@ public class AppClientInterceptor implements ClientInterceptor {
     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
         logger.info("======= [Client Interceptor] : Invoking Remote Method - " + method.getFullMethodName());
 
-        return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(
-                next.newCall(method, callOptions)) {
+        return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
 
             @Override
             public void sendMessage(ReqT message) {
@@ -37,6 +38,8 @@ public class AppClientInterceptor implements ClientInterceptor {
                         super.onMessage(message);
                     }
                 };
+
+                headers.put(Metadata.Key.of("md", ASCII_STRING_MARSHALLER), "metadata of client request");
 
                 super.start(listener, headers);
             }
