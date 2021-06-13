@@ -2,6 +2,7 @@ package com.yifei.grpc.calculator.client;
 
 import com.yifei.calculator.*;
 import com.yifei.grpc.interceptor.client.AppClientInterceptor;
+import com.yifei.grpc.security.BasicCallCredentials;
 import io.grpc.ManagedChannel;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
@@ -14,6 +15,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class CalculatorClient {
+
+    private BasicCallCredentials callCredentials = new BasicCallCredentials("admin", "admin");
+
     public static void main(String[] args) throws SSLException {
         System.out.println("Starting calculator client...");
         new CalculatorClient().run();
@@ -42,11 +46,13 @@ public class CalculatorClient {
     private void squareRoot(ManagedChannel channel) {
         System.out.println("\nSquare Root");
 
-        CalculatorServiceGrpc.CalculatorServiceBlockingStub syncClient =
-                CalculatorServiceGrpc.newBlockingStub(channel).withInterceptors(new AppClientInterceptor());
+        CalculatorServiceGrpc.CalculatorServiceBlockingStub syncClient = CalculatorServiceGrpc
+                .newBlockingStub(channel)
+                .withInterceptors(new AppClientInterceptor())
+                .withCallCredentials(this.callCredentials);
 
         try {
-            SquareRootResponse response = syncClient.squareRoot(SquareRootRequest.newBuilder().setNumber(-100).build());
+            SquareRootResponse response = syncClient.squareRoot(SquareRootRequest.newBuilder().setNumber(100).build());
             System.out.println("Square root response: " + response.getResult());
         } catch (RuntimeException e) {
             System.out.println("Server side exception");
@@ -57,7 +63,10 @@ public class CalculatorClient {
     private void max(ManagedChannel channel) {
         System.out.println("\nMax Calculation");
 
-        CalculatorServiceGrpc.CalculatorServiceStub asyncClient = CalculatorServiceGrpc.newStub(channel).withInterceptors(new AppClientInterceptor());
+        CalculatorServiceGrpc.CalculatorServiceStub asyncClient = CalculatorServiceGrpc
+                .newStub(channel)
+                .withInterceptors(new AppClientInterceptor())
+                .withCallCredentials(this.callCredentials);
 
         StreamObserver<MaxRequest> streamObserver = asyncClient.max(new StreamObserver<MaxResponse>() {
             @Override
@@ -94,7 +103,10 @@ public class CalculatorClient {
     private void average(ManagedChannel channel) {
         System.out.println("\nAverage Calculation");
 
-        CalculatorServiceGrpc.CalculatorServiceStub asyncClient = CalculatorServiceGrpc.newStub(channel).withInterceptors(new AppClientInterceptor());
+        CalculatorServiceGrpc.CalculatorServiceStub asyncClient = CalculatorServiceGrpc
+                .newStub(channel)
+                .withInterceptors(new AppClientInterceptor())
+                .withCallCredentials(this.callCredentials);
 
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -141,8 +153,10 @@ public class CalculatorClient {
     private void sum(ManagedChannel channel) {
         System.out.println("\nSum Calculation");
 
-        CalculatorServiceGrpc.CalculatorServiceBlockingStub syncClient =
-                CalculatorServiceGrpc.newBlockingStub(channel).withInterceptors(new AppClientInterceptor());
+        CalculatorServiceGrpc.CalculatorServiceBlockingStub syncClient = CalculatorServiceGrpc
+                .newBlockingStub(channel)
+                .withInterceptors(new AppClientInterceptor())
+                .withCallCredentials(this.callCredentials);
 
         CalculateRequest request = CalculateRequest.newBuilder()
                 .setLeftOperator(3)
@@ -158,8 +172,9 @@ public class CalculatorClient {
     private void primeNumberDecomposition(ManagedChannel channel) {
         System.out.println("\nPrime number decomposition");
 
-        CalculatorServiceGrpc.CalculatorServiceBlockingStub syncClient =
-                CalculatorServiceGrpc.newBlockingStub(channel);
+        CalculatorServiceGrpc.CalculatorServiceBlockingStub syncClient = CalculatorServiceGrpc
+                .newBlockingStub(channel)
+                .withCallCredentials(this.callCredentials);
 
         PrimeNumberDecompositionRequest request =
                 PrimeNumberDecompositionRequest.newBuilder()

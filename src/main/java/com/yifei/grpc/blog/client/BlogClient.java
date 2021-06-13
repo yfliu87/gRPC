@@ -2,6 +2,7 @@ package com.yifei.grpc.blog.client;
 
 import com.yifei.blog.*;
 import com.yifei.grpc.interceptor.client.AppClientInterceptor;
+import com.yifei.grpc.security.BasicCallCredentials;
 import io.grpc.ManagedChannel;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
@@ -10,6 +11,8 @@ import javax.net.ssl.SSLException;
 import java.io.File;
 
 public class BlogClient {
+
+    private BasicCallCredentials callCredentials = new BasicCallCredentials("admin", "admin");
 
     public static void main(String[] args) throws SSLException {
         System.out.println("Starting log client ...");
@@ -23,7 +26,10 @@ public class BlogClient {
                 .sslContext(GrpcSslContexts.forClient().trustManager(new File("ssl/ca.crt")).build())
                 .build();
 
-        BlogServiceGrpc.BlogServiceBlockingStub syncClient = BlogServiceGrpc.newBlockingStub(channel).withInterceptors(new AppClientInterceptor());
+        BlogServiceGrpc.BlogServiceBlockingStub syncClient = BlogServiceGrpc
+                .newBlockingStub(channel)
+                .withInterceptors(new AppClientInterceptor())
+                .withCallCredentials(this.callCredentials);
 
         Blog blog = Blog.newBuilder()
                 .setAuthorId("Yifei")

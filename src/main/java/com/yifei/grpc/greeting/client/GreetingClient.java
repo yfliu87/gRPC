@@ -2,7 +2,11 @@ package com.yifei.grpc.greeting.client;
 
 import com.yifei.greet.*;
 import com.yifei.grpc.interceptor.client.AppClientInterceptor;
-import io.grpc.*;
+import com.yifei.grpc.security.BasicCallCredentials;
+import io.grpc.Deadline;
+import io.grpc.ManagedChannel;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
@@ -13,6 +17,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class GreetingClient {
+
+    private BasicCallCredentials callCredentials = new BasicCallCredentials("admin", "admin");
+
     public static void main(String[] args) throws SSLException {
         System.out.println("starting gRPC client...");
         new GreetingClient().run();
@@ -39,7 +46,11 @@ public class GreetingClient {
     private void unary(ManagedChannel channel) {
         System.out.println("\nUnary...");
 
-        GreetServiceGrpc.GreetServiceBlockingStub syncClient = GreetServiceGrpc.newBlockingStub(channel).withInterceptors(new AppClientInterceptor());
+        GreetServiceGrpc.GreetServiceBlockingStub syncClient = GreetServiceGrpc
+                .newBlockingStub(channel)
+                .withInterceptors(new AppClientInterceptor())
+                .withCallCredentials(this.callCredentials);
+
         Greeting greeting = Greeting.newBuilder()
                 .setFirstName("Yifei")
                 .setLastName("Liu")
@@ -56,7 +67,10 @@ public class GreetingClient {
     private void serverStreaming(ManagedChannel channel) {
         System.out.println("\nServer streaming ...");
 
-        GreetServiceGrpc.GreetServiceBlockingStub syncClient = GreetServiceGrpc.newBlockingStub(channel).withInterceptors(new AppClientInterceptor());
+        GreetServiceGrpc.GreetServiceBlockingStub syncClient = GreetServiceGrpc
+                .newBlockingStub(channel)
+                .withInterceptors(new AppClientInterceptor())
+                .withCallCredentials(this.callCredentials);
 
         GreetManyTimesRequest request = GreetManyTimesRequest.newBuilder()
                 .setGreeting(Greeting.newBuilder().setFirstName("Yifei").setLastName("Liu").build())
@@ -72,7 +86,10 @@ public class GreetingClient {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        GreetServiceGrpc.GreetServiceStub asyncClient = GreetServiceGrpc.newStub(channel).withInterceptors(new AppClientInterceptor());
+        GreetServiceGrpc.GreetServiceStub asyncClient = GreetServiceGrpc
+                .newStub(channel)
+                .withInterceptors(new AppClientInterceptor())
+                .withCallCredentials(this.callCredentials);
 
         StreamObserver<LongGreetRequest> requestStreamObserver =
                 asyncClient.withCompression("gzip").longGreet(new StreamObserver<LongGreetResponse>() {
@@ -120,9 +137,11 @@ public class GreetingClient {
     private void withDeadline(ManagedChannel channel) {
         System.out.println("\nWith Deadline");
 
-        GreetServiceGrpc.GreetServiceBlockingStub syncClient = GreetServiceGrpc.newBlockingStub(channel)
+        GreetServiceGrpc.GreetServiceBlockingStub syncClient = GreetServiceGrpc
+                .newBlockingStub(channel)
                 .withDeadline(Deadline.after(50, TimeUnit.MILLISECONDS))
-                .withInterceptors(new AppClientInterceptor());
+                .withInterceptors(new AppClientInterceptor())
+                .withCallCredentials(this.callCredentials);
 
         try {
             GreetWithDeadlineResponse response = syncClient.withCompression("gzip").greetWithDeadline(
